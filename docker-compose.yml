@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Node.js + Express.js application
+  nodejs:
+    container_name: nodejs
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mysql
+
+  # MySQL database
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    restart: always
+    ports:
+      - '3306:3306'
+    environment:
+      - MYSQL_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_DATABASE=node_api
+
+  migration:
+    container_name: migrator
+    build: .
+    depends_on:
+      - mysql
+    command: sh -c 'untill nc -z mysql 3306; do sleep 1; done; npx sequelize-cli db:migrate'  
